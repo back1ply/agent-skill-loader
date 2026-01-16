@@ -3,7 +3,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { z } from "zod";
 import * as fs from "fs";
 import * as path from "path";
-import { extractDescription, findSkillsInDir, SkillInfo } from "./utils.js";
+import { extractDescription, findSkillsInDir, getPathStatus, SkillInfo, ScanWarning, ScanResult } from "./utils.js";
 
 // Load environment variables manually (dotenv v17 outputs to stdout which corrupts MCP)
 function loadEnvFile() {
@@ -108,16 +108,44 @@ function getDynamicPaths(): string[] {
 
 // --- Helpers ---
 
+function getDynamicPathsOnly(): string[] {
+  const cwd = getWorkspaceRoot();
+  const configPath = path.join(cwd, "skill-paths.json");
 
+  if (fs.existsSync(configPath)) {
+    try {
+      const content = fs.readFileSync(configPath, "utf-8");
+      const parsed = JSON.parse(content);
+      if (Array.isArray(parsed)) {
+        return parsed;
+      }
+    } catch {
+      // Ignore errors
+    }
+  }
+  return [];
+}
 
+function scanAllPaths(): ScanResult {
+  let allSkills: SkillInfo[] = [];
+  let allWarnings: ScanWarning[] = [];
+  const searchPaths = getDynamicPaths();
+
+  for (const searchPath of searchPaths) {
+    const result = findSkillsInDir(searchPath);
+    allSkills = allSkills.concat(result.skills);
+    allWarnings = allWarnings.concat(result.warnings);
+  }
+
+  return { skills: allSkills, warnings: allWarnings };
+}
 
 function getAllSkills(): SkillInfo[] {
-  let allSkills: SkillInfo[] = [];
-  const searchPaths = getDynamicPaths();
-  for (const searchPath of searchPaths) {
-    allSkills = allSkills.concat(findSkillsInDir(searchPath));
-  }
-  return allSkills;
+  return scanAllPaths().skills;
+}
+
+function getAllWarnings(): ScanWarning[] {
+  return scanAllPaths().warnings;
 }
 
 // --- Server Setup ---
@@ -356,6 +384,38 @@ server.tool(
     }
 
     return { content: [{ type: "text", text: "Invalid operation" }], isError: true };
+  }
+);
+
+// 5. debug_info - Diagnostic information for troubleshooting
+server.tool(
+  "debug_info",
+  "Returns diagnostic information about server configuration, search paths, and any warnings from the last scan. Use this when skills aren't being found or to verify configuration.",
+  {},
+  async () => {
+    const effectivePaths = getDynamicPaths();
+    const scanResult = scanAllPaths();
+
+    return {
+      content: [{
+        type: "text",
+        text: JSON.stringify({
+          workspace_root: getWorkspaceRoot(),
+          search_paths: {
+            base: getBasePaths(),
+            dynamic: getDynamicPathsOnly(),
+            effective: effectivePaths
+          },
+          path_status: getPathStatus(effectivePaths),
+          env: {
+            MCP_SKILL_PATHS: process.env.MCP_SKILL_PATHS || null,
+            MCP_WORKSPACE_ROOT: process.env.MCP_WORKSPACE_ROOT || null
+          },
+          skills_found: scanResult.skills.length,
+          warnings: scanResult.warnings
+        }, null, 2)
+      }]
+    };
   }
 );
 
