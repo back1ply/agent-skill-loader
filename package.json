@@ -1,0 +1,35 @@
+{
+  "name": "agent-skill-loader",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "MCP Server to expose Claude Code Skills to agents",
+  "main": "build/index.js",
+  "bin": {
+    "agent-skill-loader": "./build/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "skills",
+    "claude"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "start": "node build/index.js",
+    "dev": "tsc --watch",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.12",
+    "typescript": "^5.4.5",
+    "vitest": "^4.0.17"
+  }
+}
