@@ -1,5 +1,10 @@
 # Agent Skill Loader 🧠
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.4-blue)](https://www.typescriptlang.org/)
+[![MCP](https://img.shields.io/badge/MCP-Compatible-purple)](https://modelcontextprotocol.io)
+
 **Agent Skill Loader** is a Model Context Protocol (MCP) server that acts as a bridge between your static Claude Code Skills library and dynamic AI agents (like Antigravity, Claude Desktop, or Cursor).
 
 It allows agents to "learn" skills on demand without requiring you to manually copy files into every project.
