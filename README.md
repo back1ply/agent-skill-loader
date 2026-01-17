@@ -9,6 +9,8 @@ It allows agents to "learn" skills on demand without requiring you to manually c
 *   **Discovery**: `list_skills` - Scans your configured skill directories.
 *   **Dynamic Learning**: `read_skill` - Fetches the `SKILL.md` content for the agent to read.
 *   **Persistence**: `install_skill` - Copies the skill permanently to your project if needed.
+*   **Configuration**: `manage_search_paths` - Add/remove skill directories at runtime.
+*   **Troubleshooting**: `debug_info` - Diagnose configuration and path issues.
 
 ## 🛠️ Setup
 
@@ -49,15 +51,44 @@ You do not need to manually edit config files. Use the tool to manage paths at r
 ## 🤖 Usage
 
 ### For Agents
-The agent will see three tools:
+The agent will see five tools:
 *   `list_skills()`: Returns a JSON list of available skills.
 *   `read_skill(skill_name)`: Returns the markdown instructions.
 *   `install_skill(skill_name, target_path?)`: Copies the folder to `.agent/skills/<name>`. For security, `target_path` must be within the current workspace.
+*   `manage_search_paths(operation, path?)`: Add, remove, or list skill search paths.
+*   `debug_info()`: Returns diagnostic information (paths, status, warnings).
 
 ### Example Agent Prompt
 > "I need to write a DAX measure but I'm not sure about the best practices."
 
 The agent will automatically call `list_skills`, find `writing-dax-measures`, call `read_skill`, and then answer you with expert knowledge.
+
+## 🔧 Troubleshooting
+
+If skills aren't being discovered, use `debug_info()` to see:
+*   **search_paths**: Which directories are being scanned
+*   **path_status**: Whether each path exists and is readable
+*   **warnings**: Any errors encountered during scanning (permission denied, empty files, etc.)
+
+Example output:
+```json
+{
+  "workspace_root": "C:/projects/agent-skill-loader",
+  "search_paths": {
+    "base": ["C:/Users/pc/.claude/plugins/cache"],
+    "dynamic": ["F:/My/Skills"],
+    "effective": ["C:/Users/pc/.claude/plugins/cache", "F:/My/Skills"]
+  },
+  "path_status": [
+    { "path": "C:/Users/pc/.claude/plugins/cache", "exists": true, "readable": true },
+    { "path": "F:/My/Skills", "exists": false, "readable": false }
+  ],
+  "skills_found": 12,
+  "warnings": [
+    { "path": "F:/My/Skills", "reason": "Directory does not exist" }
+  ]
+}
+```
 
 ## 📦 Project Structure
 
