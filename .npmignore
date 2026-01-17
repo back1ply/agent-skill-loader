@@ -1,0 +1,25 @@
+# MCP Publisher tools
+mcp-publisher.exe
+mcp-publisher.tar.gz
+mcp-publisher.zip
+.mcpregistry_*
+server.json
+nul
+
+# Development files
+src/
+*.test.js
+*.test.ts
+docs/
+.claude/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# Test coverage
+coverage/
