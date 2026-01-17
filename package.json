@@ -5,7 +5,7 @@
   "description": "MCP Server to expose Claude Code Skills to agents",
   "main": "build/index.js",
   "bin": {
-    "agent-skill-loader": "./build/index.js"
+    "agent-skill-loader": "build/index.js"
   },
   "engines": {
     "node": ">=18"

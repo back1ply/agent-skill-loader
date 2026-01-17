@@ -1,5 +1,6 @@
 # Agent Skill Loader 🧠
 
+[![npm version](https://img.shields.io/npm/v/agent-skill-loader)](https://www.npmjs.com/package/agent-skill-loader)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.4-blue)](https://www.typescriptlang.org/)
@@ -22,21 +23,31 @@ It allows agents to "learn" skills on demand without requiring you to manually c
 ### Prerequisites
 - Node.js >= 18
 
-### 1. Build the Server
+### Option A: Install from npm (Recommended)
 ```bash
+npm install -g agent-skill-loader
+```
+
+Then register in `.mcp.json`:
+```json
+"agent-skill-loader": {
+  "command": "agent-skill-loader"
+}
+```
+
+### Option B: Build from Source
+```bash
+git clone https://github.com/back1ply/agent-skill-loader.git
+cd agent-skill-loader
 npm install
 npm run build
 ```
 
-### 2. Register in `.mcp.json`
-Add the minimal configuration to your global `C:\Users\pc\.mcp.json` (or project-specific config):
-
+Then register in `.mcp.json`:
 ```json
 "agent-skill-loader": {
   "command": "node",
-  "args": [
-    "<path-to-this-repo>/build/index.js"
-  ]
+  "args": ["<path-to-repo>/build/index.js"]
 }
 ```
 
