@@ -34,3 +34,10 @@ coverage/
 # Temp
 tmp/
 temp/
+
+# MCP Publisher
+mcp-publisher.exe
+mcp-publisher.tar.gz
+mcp-publisher.zip
+.mcpregistry_*
+nul

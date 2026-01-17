@@ -1,6 +1,7 @@
 # Agent Skill Loader 🧠
 
 [![npm version](https://img.shields.io/npm/v/agent-skill-loader)](https://www.npmjs.com/package/agent-skill-loader)
+[![MCP Registry](https://img.shields.io/badge/MCP-Registry-green)](https://registry.modelcontextprotocol.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.4-blue)](https://www.typescriptlang.org/)
