@@ -116,3 +116,8 @@ Example output:
 ## 🤝 Contributing
 
 To add new skills, simply add a folder with a `SKILL.md` file to one of the watched directories. The server picks them up automatically (no restart required for new files, though caching implementation may vary).
+
+## Hosted deployment
+
+A hosted deployment is available on [Fronteir AI](https://fronteir.ai/mcp/back1ply-agent-skill-loader).
+
