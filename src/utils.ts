@@ -92,6 +92,24 @@ export function findSkillsInDir(startPath: string): ScanResult {
   return { skills, warnings };
 }
 
+export interface PromptEntry {
+  name: string;
+  description: string;
+}
+
+export interface PromptMessage {
+  role: "user";
+  content: { type: "text"; text: string };
+}
+
+export function buildPromptEntry(skill: SkillInfo): PromptEntry {
+  return { name: skill.name, description: skill.description };
+}
+
+export function buildPromptMessages(content: string): PromptMessage[] {
+  return [{ role: "user", content: { type: "text", text: content } }];
+}
+
 export function getPathStatus(paths: string[]): PathStatus[] {
   return paths.map((p) => {
     const exists = fs.existsSync(p);

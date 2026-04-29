@@ -1,9 +1,10 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { ListPromptsRequestSchema, GetPromptRequestSchema, McpError, ErrorCode } from "@modelcontextprotocol/sdk/types.js";
 import { z } from "zod";
 import * as fs from "fs";
 import * as path from "path";
-import { extractDescription, findSkillsInDir, getPathStatus, SkillInfo, ScanWarning, ScanResult } from "./utils.js";
+import { extractDescription, findSkillsInDir, getPathStatus, buildPromptEntry, buildPromptMessages, SkillInfo, ScanWarning, ScanResult } from "./utils.js";
 
 // Load environment variables manually (dotenv v17 outputs to stdout which corrupts MCP)
 function loadEnvFile() {
@@ -156,6 +157,34 @@ function getAllWarnings(): ScanWarning[] {
 const server = new McpServer({
   name: "agent-skill-loader",
   version: PKG_VERSION,
+});
+
+// --- MCP Prompts ---
+// Register capability and dynamic handlers so clients can use skills as slash commands.
+// Handlers scan the FS on every call — same source of truth as the tools.
+
+server.server.registerCapabilities({ prompts: { listChanged: true } });
+
+server.server.setRequestHandler(ListPromptsRequestSchema, async () => {
+  const skills = getAllSkills();
+  return { prompts: skills.map(buildPromptEntry) };
+});
+
+server.server.setRequestHandler(GetPromptRequestSchema, async (request) => {
+  const skills = getAllSkills();
+  const skill = skills.find((s) => s.name === request.params.name);
+  if (!skill) {
+    throw new McpError(ErrorCode.InvalidParams, `Skill '${request.params.name}' not found`);
+  }
+  try {
+    const content = fs.readFileSync(path.join(skill.path, "SKILL.md"), "utf-8");
+    return {
+      description: skill.description,
+      messages: buildPromptMessages(content),
+    };
+  } catch (err: any) {
+    throw new McpError(ErrorCode.InternalError, `Failed to read skill: ${err.message}`);
+  }
 });
 
 // --- Tools ---

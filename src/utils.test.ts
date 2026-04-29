@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
-import { extractDescription, findSkillsInDir, getPathStatus, SkillInfo } from './utils.js';
+import { extractDescription, findSkillsInDir, getPathStatus, buildPromptEntry, buildPromptMessages, SkillInfo } from './utils.js';
 
 vi.mock('fs');
 
@@ -240,5 +240,46 @@ describe('getPathStatus', () => {
       exists: true,
       readable: false
     });
+  });
+});
+
+describe('buildPromptEntry', () => {
+  it('maps SkillInfo to MCP prompt list entry', () => {
+    const skill: SkillInfo = {
+      name: 'writing-dax-measures',
+      description: 'Write DAX measures for Power BI',
+      path: '/skills/writing-dax-measures',
+      source: '/skills',
+    };
+    const entry = buildPromptEntry(skill);
+    expect(entry.name).toBe('writing-dax-measures');
+    expect(entry.description).toBe('Write DAX measures for Power BI');
+  });
+
+  it('preserves name with special characters', () => {
+    const skill: SkillInfo = {
+      name: 'my-skill_v2',
+      description: 'desc',
+      path: '/p',
+      source: '/s',
+    };
+    expect(buildPromptEntry(skill).name).toBe('my-skill_v2');
+  });
+});
+
+describe('buildPromptMessages', () => {
+  it('wraps skill content in MCP user message', () => {
+    const content = '# My Skill\nDo this thing.';
+    const messages = buildPromptMessages(content);
+    expect(messages).toHaveLength(1);
+    expect(messages[0].role).toBe('user');
+    expect(messages[0].content.type).toBe('text');
+    expect(messages[0].content.text).toBe(content);
+  });
+
+  it('returns array with single message', () => {
+    const messages = buildPromptMessages('anything');
+    expect(Array.isArray(messages)).toBe(true);
+    expect(messages.length).toBe(1);
   });
 });
