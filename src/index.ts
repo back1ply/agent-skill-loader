@@ -41,6 +41,10 @@ loadEnvFile();
 
 import * as os from "os";
 import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
+
+const _require = createRequire(import.meta.url);
+const { version: PKG_VERSION } = _require('../package.json') as { version: string };
 
 // --- Workspace & Config Logic ---
 
@@ -151,7 +155,7 @@ function getAllWarnings(): ScanWarning[] {
 // --- Server Setup ---
 const server = new McpServer({
   name: "agent-skill-loader",
-  version: "1.0.0",
+  version: PKG_VERSION,
 });
 
 // --- Tools ---
