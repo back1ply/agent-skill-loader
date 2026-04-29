@@ -194,10 +194,18 @@ server.server.setRequestHandler(GetPromptRequestSchema, async (request) => {
 server.tool(
   "list_skills",
   "Returns a JSON list of all available skills with their names, descriptions, and source directories. Use this to discover what skills are available before reading or installing them.",
-  {},
+  {
+    query: z.string().optional().describe("Optional filter: return only skills whose name or description contains this substring (case-insensitive)"),
+  },
   { readOnlyHint: true },
-  async () => {
-    const skills = getAllSkills();
+  async ({ query }) => {
+    let skills = getAllSkills();
+    if (query) {
+      const q = query.toLowerCase();
+      skills = skills.filter(
+        (s) => s.name.toLowerCase().includes(q) || s.description.toLowerCase().includes(q)
+      );
+    }
     // Debug: include examined paths if no skills found OR always for now
     if (skills.length === 0) {
        return {

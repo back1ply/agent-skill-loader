@@ -133,6 +133,63 @@ EMPTY=
   });
 });
 
+describe('filterSkills', () => {
+  it('returns all skills when query is empty', () => {
+    const skills = [
+      { name: 'dax-measures', description: 'Write DAX', path: '/p', source: '/s' },
+      { name: 'tdd-python', description: 'Test driven dev', path: '/p2', source: '/s' },
+    ];
+    const query: string = '';
+    const filtered = query
+      ? skills.filter(s =>
+          s.name.toLowerCase().includes(query.toLowerCase()) ||
+          s.description.toLowerCase().includes(query.toLowerCase())
+        )
+      : skills;
+    expect(filtered).toHaveLength(2);
+  });
+
+  it('filters by name substring (case-insensitive)', () => {
+    const skills = [
+      { name: 'dax-measures', description: 'Write DAX', path: '/p', source: '/s' },
+      { name: 'tdd-python', description: 'Test driven dev', path: '/p2', source: '/s' },
+    ];
+    const query = 'DAX';
+    const filtered = skills.filter(s =>
+      s.name.toLowerCase().includes(query.toLowerCase()) ||
+      s.description.toLowerCase().includes(query.toLowerCase())
+    );
+    expect(filtered).toHaveLength(1);
+    expect(filtered[0].name).toBe('dax-measures');
+  });
+
+  it('filters by description substring', () => {
+    const skills = [
+      { name: 'dax-measures', description: 'Write DAX measures for Power BI', path: '/p', source: '/s' },
+      { name: 'tdd-python', description: 'Test driven development', path: '/p2', source: '/s' },
+    ];
+    const query = 'power bi';
+    const filtered = skills.filter(s =>
+      s.name.toLowerCase().includes(query.toLowerCase()) ||
+      s.description.toLowerCase().includes(query.toLowerCase())
+    );
+    expect(filtered).toHaveLength(1);
+    expect(filtered[0].name).toBe('dax-measures');
+  });
+
+  it('returns empty array when no match', () => {
+    const skills = [
+      { name: 'dax-measures', description: 'Write DAX', path: '/p', source: '/s' },
+    ];
+    const query = 'zzznomatch';
+    const filtered = skills.filter(s =>
+      s.name.toLowerCase().includes(query.toLowerCase()) ||
+      s.description.toLowerCase().includes(query.toLowerCase())
+    );
+    expect(filtered).toHaveLength(0);
+  });
+});
+
 describe('MCP tool response format', () => {
   it('should return valid MCP content structure', () => {
     // Verify the response format matches MCP spec
