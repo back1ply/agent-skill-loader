@@ -102,6 +102,14 @@ export interface PromptMessage {
   content: { type: "text"; text: string };
 }
 
+export function makeDebounce(fn: () => void, delayMs: number): () => void {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  return () => {
+    if (timer !== undefined) clearTimeout(timer);
+    timer = setTimeout(() => { timer = undefined; fn(); }, delayMs);
+  };
+}
+
 export function buildPromptEntry(skill: SkillInfo): PromptEntry {
   return { name: skill.name, description: skill.description };
 }

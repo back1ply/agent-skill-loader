@@ -4,7 +4,8 @@ import { ListPromptsRequestSchema, GetPromptRequestSchema, McpError, ErrorCode }
 import { z } from "zod";
 import * as fs from "fs";
 import * as path from "path";
-import { extractDescription, findSkillsInDir, getPathStatus, buildPromptEntry, buildPromptMessages, SkillInfo, ScanWarning, ScanResult } from "./utils.js";
+import chokidar from "chokidar";
+import { extractDescription, findSkillsInDir, getPathStatus, buildPromptEntry, buildPromptMessages, makeDebounce, SkillInfo, ScanWarning, ScanResult } from "./utils.js";
 
 // Load environment variables manually (dotenv v17 outputs to stdout which corrupts MCP)
 function loadEnvFile() {
@@ -456,6 +457,17 @@ server.tool(
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
+
+  if (!process.env.MCP_NO_WATCH) {
+    const paths = getDynamicPaths();
+    const notify = makeDebounce(() => server.sendPromptListChanged(), 100);
+    const watcher = chokidar.watch(paths, { ignoreInitial: true, persistent: true });
+    watcher.on("add", notify);
+    watcher.on("unlink", notify);
+    watcher.on("addDir", notify);
+    watcher.on("unlinkDir", notify);
+    watcher.on("error", (err) => console.error("[watcher]", err));
+  }
 }
 
 main().catch((error) => {

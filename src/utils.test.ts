@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
-import { extractDescription, findSkillsInDir, getPathStatus, buildPromptEntry, buildPromptMessages, SkillInfo } from './utils.js';
+import { extractDescription, findSkillsInDir, getPathStatus, buildPromptEntry, buildPromptMessages, makeDebounce, SkillInfo } from './utils.js';
 
 vi.mock('fs');
 
@@ -281,5 +281,55 @@ describe('buildPromptMessages', () => {
     const messages = buildPromptMessages('anything');
     expect(Array.isArray(messages)).toBe(true);
     expect(messages.length).toBe(1);
+  });
+});
+
+describe('makeDebounce', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('calls fn once after delay when triggered multiple times', () => {
+    const fn = vi.fn();
+    const debounced = makeDebounce(fn, 100);
+
+    debounced();
+    debounced();
+    debounced();
+
+    expect(fn).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(100);
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('resets timer on each call', () => {
+    const fn = vi.fn();
+    const debounced = makeDebounce(fn, 100);
+
+    debounced();
+    vi.advanceTimersByTime(50);
+    debounced();
+    vi.advanceTimersByTime(50);
+
+    expect(fn).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(50);
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls fn again if triggered after delay completes', () => {
+    const fn = vi.fn();
+    const debounced = makeDebounce(fn, 100);
+
+    debounced();
+    vi.advanceTimersByTime(100);
+    expect(fn).toHaveBeenCalledTimes(1);
+
+    debounced();
+    vi.advanceTimersByTime(100);
+    expect(fn).toHaveBeenCalledTimes(2);
   });
 });
