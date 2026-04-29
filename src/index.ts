@@ -195,6 +195,7 @@ server.tool(
   "list_skills",
   "Returns a JSON list of all available skills with their names, descriptions, and source directories. Use this to discover what skills are available before reading or installing them.",
   {},
+  { readOnlyHint: true },
   async () => {
     const skills = getAllSkills();
     // Debug: include examined paths if no skills found OR always for now
@@ -241,6 +242,7 @@ server.tool(
       .string()
       .describe("The name of the skill to read (e.g., 'writing-dax-measures')"),
   },
+  { readOnlyHint: true },
   async ({ skill_name }) => {
     const skills = getAllSkills();
     const skill = skills.find((s) => s.name === skill_name);
@@ -283,6 +285,7 @@ server.tool(
         "Destination path within current workspace. Defaults to .agent/skills/<skill_name>. Must be within the current working directory for security.",
       ),
   },
+  { destructiveHint: true },
   async ({ skill_name, target_path }) => {
     const skills = getAllSkills();
     const skill = skills.find((s) => s.name === skill_name);
@@ -347,6 +350,7 @@ server.tool(
     operation: z.enum(["add", "remove", "list"]).describe("Operation to perform"),
     path: z.string().optional().describe("Absolute path to add or remove (not required for 'list')"),
   },
+  { readOnlyHint: true },
   async ({ operation, path: inputPath }) => {
     const cwd = getWorkspaceRoot();
     const configPath = path.join(cwd, "skill-paths.json");
@@ -426,6 +430,7 @@ server.tool(
   "debug_info",
   "Returns diagnostic information about server configuration, search paths, and any warnings from the last scan. Use this when skills aren't being found or to verify configuration.",
   {},
+  { readOnlyHint: true },
   async () => {
     const effectivePaths = getDynamicPaths();
     const scanResult = scanAllPaths();
