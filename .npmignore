@@ -11,6 +11,7 @@ src/
 *.test.js
 *.test.ts
 docs/
+tasks/
 .claude/
 
 # Git
