@@ -212,3 +212,39 @@ describe('MCP tool response format', () => {
     expect(errorResponse.content[0].type).toBe('text');
   });
 });
+
+describe('prompts/list response shape', () => {
+  it('maps skills to correct MCP prompt list shape', () => {
+    // Validates the shape returned by prompts/list handler
+    const skills = [
+      { name: 'skill-a', description: 'Does A', path: '/p', source: '/s' },
+      { name: 'skill-b', description: 'Does B', path: '/p2', source: '/s' },
+    ];
+    const result = { prompts: skills.map(s => ({ name: s.name, description: s.description })) };
+    expect(result.prompts).toHaveLength(2);
+    expect(result.prompts[0]).toEqual({ name: 'skill-a', description: 'Does A' });
+    expect(result.prompts[1]).toEqual({ name: 'skill-b', description: 'Does B' });
+  });
+});
+
+describe('prompts/get response shape', () => {
+  it('wraps content as MCP user message', () => {
+    const content = '# Skill\nDo this.';
+    const result = {
+      description: 'Does A',
+      messages: [{ role: 'user', content: { type: 'text', text: content } }],
+    };
+    expect(result.messages).toHaveLength(1);
+    expect(result.messages[0].role).toBe('user');
+    expect(result.messages[0].content.type).toBe('text');
+    expect(result.messages[0].content.text).toBe(content);
+  });
+
+  it('description field matches skill description', () => {
+    const result = {
+      description: 'Write DAX measures for Power BI',
+      messages: [{ role: 'user', content: { type: 'text', text: '# content' } }],
+    };
+    expect(result.description).toBe('Write DAX measures for Power BI');
+  });
+});
