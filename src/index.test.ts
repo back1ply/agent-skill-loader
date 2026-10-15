@@ -18,37 +18,6 @@ describe('index module', () => {
     vi.resetModules();
   });
 
-  describe('install_skill security', () => {
-    it('should reject paths outside workspace', () => {
-      // The security check in install_skill validates that target path
-      // is within the workspace. Test the path normalization logic.
-      const cwd = process.platform === 'win32' ? 'C:\\workspace' : '/workspace';
-      const maliciousPath = '../../../etc/passwd';
-      const dest = path.join(cwd, maliciousPath);
-      const normalizedDest = path.normalize(dest);
-      const normalizedCwd = path.normalize(cwd);
-
-      // The security check: normalizedDest.startsWith(normalizedCwd)
-      expect(normalizedDest.startsWith(normalizedCwd)).toBe(false);
-    });
-
-    it('should accept paths inside workspace', () => {
-      // Use platform-appropriate paths
-      const cwd = process.platform === 'win32' ? 'C:\\workspace' : '/workspace';
-      const safePath = '.agent/skills/my-skill';
-      const resolved = path.resolve(cwd, safePath);
-      const normalizedDest = path.normalize(resolved);
-      const normalizedCwd = path.normalize(cwd);
-
-      // On Windows, path.resolve with absolute path ignores cwd, so we need
-      // to use path.join for relative paths
-      const dest = path.join(cwd, safePath);
-      const normalizedDestFixed = path.normalize(dest);
-
-      expect(normalizedDestFixed.startsWith(normalizedCwd)).toBe(true);
-    });
-  });
-
   describe('manage_search_paths', () => {
     it('should clean file:// prefix from paths', () => {
       // The manage_search_paths tool cleans file:// prefixes

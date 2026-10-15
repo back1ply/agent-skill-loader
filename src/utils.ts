@@ -133,3 +133,9 @@ export function getPathStatus(paths: string[]): PathStatus[] {
     return { path: p, exists, readable };
   });
 }
+
+/** True if `target` is `root` or inside it. A plain prefix check would accept sibling dirs like `proj-x` for `proj`. */
+export function isWithinDir(root: string, target: string): boolean {
+  const rel = path.relative(path.resolve(root), path.resolve(target));
+  return rel === "" || (!rel.startsWith("..") && !path.isAbsolute(rel));
+}

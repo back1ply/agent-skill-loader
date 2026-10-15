@@ -1,6 +1,6 @@
 {
   "name": "agent-skill-loader",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "mcpName": "io.github.back1ply/agent-skill-loader",
   "type": "module",
   "description": "MCP Server to expose Claude Code Skills to agents",
@@ -25,7 +25,7 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@modelcontextprotocol/sdk": "^1.32.1",
     "chokidar": "^5.0.0",
     "zod": "^3.23.8"
   },

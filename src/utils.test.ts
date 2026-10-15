@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
-import { extractDescription, findSkillsInDir, getPathStatus, buildPromptEntry, buildPromptMessages, makeDebounce, SkillInfo } from './utils.js';
+import { extractDescription, findSkillsInDir, getPathStatus, buildPromptEntry, buildPromptMessages, makeDebounce, isWithinDir, SkillInfo } from './utils.js';
 
 vi.mock('fs');
 
@@ -332,4 +332,16 @@ describe('makeDebounce', () => {
     vi.advanceTimersByTime(100);
     expect(fn).toHaveBeenCalledTimes(2);
   });
+});
+
+describe('isWithinDir', () => {
+    const root = path.resolve('/workspace/proj');
+    it('accepts the root and paths inside it', () => {
+        expect(isWithinDir(root, root)).toBe(true);
+        expect(isWithinDir(root, path.join(root, '.agent/skills/x'))).toBe(true);
+    });
+    it('rejects traversal and sibling dirs sharing a prefix', () => {
+        expect(isWithinDir(root, path.join(root, '../../etc'))).toBe(false);
+        expect(isWithinDir(root, path.resolve('/workspace/proj-x/skills'))).toBe(false);
+    });
 });

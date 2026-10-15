@@ -5,7 +5,7 @@ import { z } from "zod";
 import * as fs from "fs";
 import * as path from "path";
 import chokidar from "chokidar";
-import { extractDescription, findSkillsInDir, getPathStatus, buildPromptEntry, buildPromptMessages, makeDebounce, SkillInfo, ScanWarning, ScanResult } from "./utils.js";
+import { extractDescription, findSkillsInDir, getPathStatus, buildPromptEntry, buildPromptMessages, makeDebounce, isWithinDir, SkillInfo, ScanWarning, ScanResult } from "./utils.js";
 
 // Load environment variables manually (dotenv v17 outputs to stdout which corrupts MCP)
 function loadEnvFile() {
@@ -206,21 +206,18 @@ server.tool(
         (s) => s.name.toLowerCase().includes(q) || s.description.toLowerCase().includes(q)
       );
     }
-    // Debug: include examined paths if no skills found OR always for now
+    if (skills.length === 0 && query) {
+      return { content: [{ type: "text", text: `No skills match '${query}'. Call list_skills without a query to see all skills.` }] };
+    }
     if (skills.length === 0) {
-       return {
-        content: [
-          {
-            type: "text",
-            text: JSON.stringify({
-               error: "No skills found",
-               env_var: process.env.MCP_SKILL_PATHS,
-               parsed_paths: getDynamicPaths(),
-               cwd: process.cwd()
-            }, null, 2)
-          }
-        ]
-       }
+      return {
+        content: [{
+          type: "text",
+          text: `No skills found in ${getDynamicPaths().length} search path(s). ` +
+            `Call debug_info to see which paths exist, or manage_search_paths(operation="add") to add one.`,
+        }],
+        isError: true,
+      };
     }
     return {
       content: [
@@ -312,9 +309,7 @@ server.tool(
     if (target_path) {
       dest = path.resolve(cwd, target_path);
       // Security: Ensure target path is within current working directory
-      const normalizedDest = path.normalize(dest);
-      const normalizedCwd = path.normalize(cwd);
-      if (!normalizedDest.startsWith(normalizedCwd)) {
+      if (!isWithinDir(cwd, dest)) {
         return {
           content: [
             {
@@ -358,7 +353,8 @@ server.tool(
     operation: z.enum(["add", "remove", "list"]).describe("Operation to perform"),
     path: z.string().optional().describe("Absolute path to add or remove (not required for 'list')"),
   },
-  { readOnlyHint: true },
+  // add/remove write skill-paths.json, so this cannot be read-only
+  { readOnlyHint: false, destructiveHint: true, idempotentHint: true },
   async ({ operation, path: inputPath }) => {
     const cwd = getWorkspaceRoot();
     const configPath = path.join(cwd, "skill-paths.json");
