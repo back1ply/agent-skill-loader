@@ -150,10 +150,6 @@ function getAllSkills(): SkillInfo[] {
   return scanAllPaths().skills;
 }
 
-function getAllWarnings(): ScanWarning[] {
-  return scanAllPaths().warnings;
-}
-
 // --- Server Setup ---
 const server = new McpServer({
   name: "agent-skill-loader",
