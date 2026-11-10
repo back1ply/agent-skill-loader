@@ -10,9 +10,15 @@
   "packageRules": [
     {
       "description": "Auto-merge non-major updates once CI passes (skip 0.x, where minor can break)",
-      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
       "matchCurrentVersion": "!/^v?0[.]/",
       "automerge": true
     }
-  ]
+  ],
+  "osvVulnerabilityAlerts": true
 }
